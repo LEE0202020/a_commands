@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo Gallery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f4f5;
+      padding: 32px 16px;
+    }
+    h1 { text-align: center; margin-bottom: 24px; color: #222; }
+
+    /* 2행 3열 그리드 */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, auto);
+      gap: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .gallery figure {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      transition: transform .2s;
+    }
+    .gallery figure:hover { transform: translateY(-4px); }
+    .gallery img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+    .gallery figcaption {
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    /* 좁은 화면에서는 열 수 축소 */
+    @media (max-width: 720px) {
+      .gallery { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 440px) {
+      .gallery { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h1>사진 갤러리</h1>
+  <div class="gallery">
+    <figure><img src="https://picsum.photos/id/10/600/450" alt="사진 1"><figcaption>사진 1</figcaption></figure>
+    <figure><img src="https://picsum.photos/id/20/600/450" alt="사진 2"><figcaption>사진 2</figcaption></figure>
+    <figure><img src="https://picsum.photos/id/30/600/450" alt="사진 3"><figcaption>사진 3</figcaption></figure>
+    <figure><img src="https://picsum.photos/id/40/600/450" alt="사진 4"><figcaption>사진 4</figcaption></figure>
+    <figure><img src="https://picsum.photos/id/50/600/450" alt="사진 5"><figcaption>사진 5</figcaption></figure>
+    <figure><img src="https://picsum.photos/id/60/600/450" alt="사진 6"><figcaption>사진 6</figcaption></figure>
+  </div>
+</body>
+</html>

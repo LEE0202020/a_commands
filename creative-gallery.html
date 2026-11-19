@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creative Gallery</title>
+  <!-- 아이콘: Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #1cc4b0;   /* 선택된 카테고리 색 */
+      --text: #222;
+      --sub: #888;
+      --line: #e5e5e5;
+    }
+
+    body {
+      font-family: "Pretendard", system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: #fff;
+    }
+
+    /* ───────── 카테고리 메뉴 ───────── */
+    .category-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 32px 16px 24px;
+      overflow-x: auto;          /* 좁은 화면에서는 가로 스크롤 */
+      scrollbar-width: none;
+    }
+    .category-nav::-webkit-scrollbar { display: none; }
+
+    .category-nav button {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border: none;
+      background: none;
+      font: inherit;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .category-nav button i { font-size: 17px; }
+    .category-nav button:hover { color: var(--accent); }
+    .category-nav button.active { color: var(--accent); font-weight: 700; }
+
+    .category-nav .divider {
+      flex-shrink: 0;
+      width: 1px;
+      height: 36px;
+      background: var(--line);
+      margin: 0 8px;
+    }
+
+    /* ───────── 작품 그리드 ───────── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 32px 20px;
+      padding: 0 24px 48px;
+    }
+
+    .card-thumb {
+      display: block;
+      aspect-ratio: 1 / 1;       /* 정사각형 썸네일 */
+      border-radius: 6px;
+      overflow: hidden;
+      background: #f2f2f2;
+    }
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .3s;
+    }
+    .card:hover .card-thumb img { transform: scale(1.05); }
+
+    .card-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+    .author {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      font-weight: 600;
+    }
+    .author img {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .author span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+      color: var(--sub);
+      font-size: 12px;
+    }
+    .stats i { margin-right: 3px; }
+    .like-btn {
+      border: none;
+      background: none;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+    }
+    .like-btn.liked { color: #ff4d6d; }
+
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 0;
+      color: var(--sub);
+    }
+
+    /* ───────── 반응형 ───────── */
+    @media (max-width: 1400px) { .grid { grid-template-columns: repeat(5, 1fr); } }
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: repeat(4, 1fr); }
+      .category-nav { justify-content: flex-start; }
+    }
+    @media (max-width: 820px)  { .grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px)  { .grid { grid-template-columns: repeat(2, 1fr); gap: 24px 12px; padding: 0 16px 32px; } }
+  </style>
+</head>
+<body>
+
+  <!-- 카테고리 메뉴 -->
+  <nav class="category-nav" id="categoryNav">
+    <button class="active" data-cat="all"><i class="fa-solid fa-layer-group"></i>전체</button>
+    <button data-cat="video"><i class="fa-solid fa-circle-play"></i>영상/모션그래픽</button>
+    <button data-cat="graphic"><i class="fa-solid fa-palette"></i>그래픽 디자인</button>
+    <button data-cat="branding"><i class="fa-solid fa-id-card"></i>브랜딩/편집</button>
+    <button data-cat="uiux"><i class="fa-solid fa-arrow-pointer"></i>UI/UX</button>
+    <button data-cat="illust"><i class="fa-solid fa-pen-nib"></i>일러스트레이션</button>
+    <button data-cat="digital"><i class="fa-solid fa-image"></i>디지털 아트</button>
+    <button data-cat="ai"><i class="fa-solid fa-wand-magic-sparkles"></i>AI</button>
+    <button data-cat="character"><i class="fa-solid fa-cat"></i>캐릭터 디자인</button>
+    <button data-cat="product"><i class="fa-solid fa-box"></i>제품/패키지 디자인</button>
+    <button data-cat="photo"><i class="fa-solid fa-camera"></i>포토그래피</button>
+    <button data-cat="typo"><i class="fa-solid fa-font"></i>타이포그래피</button>
+    <button data-cat="craft"><i class="fa-solid fa-gem"></i>공예</button>
+    <button data-cat="fineart"><i class="fa-solid fa-paintbrush"></i>파인아트</button>
+    <span class="divider"></span>
+    <button data-cat="special"><i class="fa-solid fa-star"></i>기획전</button>
+  </nav>
+
+  <!-- 작품 목록 (JS로 채움) -->
+  <main class="grid" id="grid"></main>
+
+  <script>
+    // 작품 데이터 (이미지는 picsum 샘플 사진)
+    const works = [
+      { cat: "branding",  img: 1,   author: "스튜디오 하루", views: 191, likes: 9 },
+      { cat: "illust",    img: 106, author: "25min",        views: 196, likes: 2 },
+      { cat: "photo",     img: 64,  author: "시나브",        views: 192, likes: 2 },
+      { cat: "video",     img: 237, author: "모래",          views: 182, likes: 9 },
+      { cat: "graphic",   img: 177, author: "김지호",        views: 159, likes: 6 },
+      { cat: "typo",      img: 28,  author: "인볼드",        views: 247, likes: 11 },
+      { cat: "uiux",      img: 0,   author: "픽셀랩",        views: 312, likes: 24 },
+      { cat: "digital",   img: 152, author: "누아르",        views: 88,  likes: 4 },
+      { cat: "ai",        img: 119, author: "AI 스케치북",   views: 405, likes: 31 },
+      { cat: "character", img: 237, author: "몽글몽글",      views: 276, likes: 18 },
+      { cat: "product",   img: 96,  author: "패키지공방",    views: 134, likes: 7 },
+      { cat: "craft",     img: 145, author: "흙과 손",       views: 98,  likes: 5 },
+      { cat: "fineart",   img: 103, author: "이수아",        views: 167, likes: 12 },
+      { cat: "special",   img: 15,  author: "기획전 팀",     views: 520, likes: 40 },
+      { cat: "photo",     img: 29,  author: "필름로그",      views: 221, likes: 15 },
+      { cat: "illust",    img: 169, author: "오후세시",      views: 143, likes: 8 },
+      { cat: "graphic",   img: 180, author: "블루노트",      views: 189, likes: 10 },
+      { cat: "branding",  img: 160, author: "로고하우스",    views: 205, likes: 13 },
+    ];
+
+    const grid = document.getElementById("grid");
+    const nav = document.getElementById("categoryNav");
+
+    // 카드 그리기
+    function render(cat) {
+      const list = cat === "all" ? works : works.filter(w => w.cat === cat);
+
+      if (list.length === 0) {
+        grid.innerHTML = `<p class="empty">아직 등록된 작품이 없어요.</p>`;
+        return;
+      }
+
+      grid.innerHTML = list.map((w, i) => `
+        <article class="card">
+          <a href="#" class="card-thumb">
+            <img src="https://picsum.photos/id/${w.img}/500/500" alt="${w.author}의 작품" loading="lazy">
+          </a>
+          <div class="card-info">
+            <div class="author">
+              <img src="https://i.pravatar.cc/44?img=${(i % 70) + 1}" alt="">
+              <span>${w.author}</span>
+            </div>
+            <div class="stats">
+              <span><i class="fa-regular fa-eye"></i>${w.views}</span>
+              <button class="like-btn"><i class="fa-solid fa-heart"></i><span>${w.likes}</span></button>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    // 카테고리 클릭 → 필터링
+    nav.addEventListener("click", e => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      nav.querySelector(".active").classList.remove("active");
+      btn.classList.add("active");
+      render(btn.dataset.cat);
+    });
+
+    // 좋아요 클릭 → 숫자 +1 / -1
+    grid.addEventListener("click", e => {
+      const btn = e.target.closest(".like-btn");
+      if (!btn) return;
+      const count = btn.querySelector("span");
+      const liked = btn.classList.toggle("liked");
+      count.textContent = Number(count.textContent) + (liked ? 1 : -1);
+    });
+
+    render("all");
+  </script>
+</body>
+</html>

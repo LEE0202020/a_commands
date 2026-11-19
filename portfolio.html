@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creative Gallery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
+      background: #fff;
+      color: #222;
+    }
+
+    /* ── 카테고리 아이콘 배너 ── */
+    .category-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 20px 48px;              /* 양옆 틈 */
+      border-bottom: 1px solid #eee;
+      overflow-x: auto;                /* 좁은 화면에선 가로 스크롤 */
+    }
+    .category {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 64px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #555;
+    }
+    .category .icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #f3f4f6;
+      display: grid; place-items: center;
+      transition: background .2s, color .2s;
+    }
+    .category svg { width: 20px; height: 20px; }
+    .category span {
+      font-size: 11px;
+      text-align: center;
+      line-height: 1.3;
+      word-break: keep-all;
+    }
+    .category:hover .icon,
+    .category.active .icon { background: #222; color: #fff; }
+    .category.active span { color: #222; font-weight: 600; }
+
+    /* ── 카드 5개 (가로 꽉 차게) ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      padding: 24px 16px;
+    }
+    .card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;             /* 정사각형 */
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      transition: transform .2s;
+    }
+    .card:hover img { transform: translateY(-4px); }
+
+    /* ── 인스타 느낌 메타 정보 ── */
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .author { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .author img {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      aspect-ratio: auto; box-shadow: none;
+    }
+    .author b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stats { display: flex; gap: 10px; color: #777; flex-shrink: 0; }
+    .stats span { display: flex; align-items: center; gap: 3px; }
+    .stats svg { width: 14px; height: 14px; }
+    .stats .heart { color: #e0245e; }
+
+    @media (max-width: 900px) {
+      .cards { grid-template-columns: repeat(3, 1fr); }
+      .category-bar { padding: 16px; justify-content: flex-start; }
+    }
+    @media (max-width: 520px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <nav class="category-bar" id="categoryBar"></nav>
+  <section class="cards" id="cards"></section>
+
+  <script>
+    const s = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+    const svg = (d) => `<svg viewBox="0 0 24 24" ${s}>${d}</svg>`;
+
+    const categories = [
+      ['전체',               '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>'],
+      ['영상/모션 그래픽',    '<rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3z"/>'],
+      ['그래픽 디자인',       '<path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18z"/><circle cx="11" cy="11" r="2"/>'],
+      ['브랜딩/편집',         '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>'],
+      ['UX/UI',              '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>'],
+      ['일러스트레이션',      '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'],
+      ['디자인 아트',         '<circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 0 0 0 20c1 0 1.5-.8 1.5-1.5 0-.4-.2-.7-.4-1-.3-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16a6 6 0 0 0 6-6c0-5-4.5-9-10-9z"/>'],
+      ['AI',                 '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/>'],
+      ['캐릭터 디자인',       '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/>'],
+      ['제품/패키지 디자인',  '<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/>'],
+      ['포토그래피',          '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>'],
+      ['타이포그래피',        '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>'],
+      ['공예',               '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/>'],
+      ['파인아트',            '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>'],
+      ['경기도 AI콘텐츠',     '<path d="m12 3-1.9 5.8L4 10l6.1 1.2L12 17l1.9-5.8L20 10l-6.1-1.2z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/>'],
+    ];
+
+    const bar = document.getElementById('categoryBar');
+    bar.innerHTML = categories.map(([name, d], i) => `
+      <button class="category${i === 0 ? ' active' : ''}">
+        <div class="icon">${svg(d)}</div>
+        <span>${name}</span>
+      </button>`).join('');
+    bar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.category');
+      if (!btn) return;
+      bar.querySelectorAll('.category').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+
+    const eye = svg('<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>');
+    const heart = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.6 1-1.1a5.5 5.5 0 0 0 0-7.7z"/></svg>`;
+
+    const works = [
+      { img: 101, avatar: 11, name: 'studio_min', views: 1240, likes: 87 },
+      { img: 102, avatar: 12, name: 'hana.design', views: 3580, likes: 214 },
+      { img: 103, avatar: 13, name: 'jun_motion', views: 920, likes: 45 },
+      { img: 104, avatar: 14, name: 'seoyeon_art', views: 5120, likes: 389 },
+      { img: 106, avatar: 15, name: 'craft_lee', views: 2310, likes: 132 },
+    ];
+    const fmt = (n) => n >= 1000 ? (n / 1000).toFixed(1) + 'k' : n;
+
+    document.getElementById('cards').innerHTML = works.map(w => `
+      <article class="card">
+        <img src="https://picsum.photos/id/${w.img}/600/600" alt="${w.name} 작품">
+        <div class="meta">
+          <div class="author">
+            <img src="https://i.pravatar.cc/48?img=${w.avatar}" alt="">
+            <b>${w.name}</b>
+          </div>
+          <div class="stats">
+            <span>${eye}${fmt(w.views)}</span>
+            <span><span class="heart">${heart}</span>${w.likes}</span>
+          </div>
+        </div>
+      </article>`).join('');
+  </script>
+</body>
+</html>

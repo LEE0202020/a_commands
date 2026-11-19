@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creative Gallery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --accent: #12b5b0;
+      --text: #222;
+      --sub: #8a8a8a;
+    }
+    body {
+      font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
+      background: #fff;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── 카테고리 배너 ── */
+    .category-bar {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 4px;
+      padding: 32px 120px 24px;       /* 양옆 여백 */
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .category-bar::-webkit-scrollbar { display: none; }
+    .category {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 0 18px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text);
+      font: inherit;
+    }
+    .category svg { width: 18px; height: 18px; fill: currentColor; }
+    .category span { font-size: 12.5px; font-weight: 500; white-space: nowrap; }
+    .category:hover { color: var(--accent); }
+    .category.active { color: var(--accent); }
+    .category.active span { font-weight: 700; }
+    .divider { width: 1px; height: 34px; background: #e5e5e5; margin: 4px 6px 0; flex: 0 0 auto; }
+    .category.special svg { fill: none; }
+
+    /* ── 카드 캐러셀 ── */
+    .carousel {
+      display: flex;
+      gap: 22px;
+      padding: 0 0 40px;
+      margin-left: -30px;             /* 첫 카드가 살짝 잘리는 느낌 */
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .carousel::-webkit-scrollbar { display: none; }
+    .card {
+      flex: 0 0 calc((100vw - 5 * 22px) / 5.8);
+      scroll-snap-align: start;
+      cursor: pointer;
+    }
+    .thumb {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #eee;
+    }
+    .thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .3s;
+    }
+    .card:hover .thumb img { transform: scale(1.04); }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+    .author { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    .author img {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .author b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stats { display: flex; gap: 10px; color: var(--sub); font-size: 12px; flex-shrink: 0; }
+    .stats span { display: flex; align-items: center; gap: 3px; }
+    .stats svg { width: 14px; height: 14px; fill: currentColor; }
+
+    @media (max-width: 1200px) {
+      .category-bar { justify-content: flex-start; padding: 24px 16px; }
+      .card { flex-basis: calc((100vw - 3 * 22px) / 3.5); }
+    }
+    @media (max-width: 600px) {
+      .card { flex-basis: 60vw; }
+      .carousel { margin-left: 0; padding-left: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="category-bar" id="categoryBar"></nav>
+  <section class="carousel" id="carousel"></section>
+
+  <script>
+    const ico = (d) => `<svg viewBox="0 0 24 24">${d}</svg>`;
+
+    const categories = [
+      ['전체',              '<path d="M12 2 1 7.5l11 5.5 11-5.5z"/><path d="m3.5 11-2.5 1.5L12 18l11-5.5-2.5-1.5L12 15.2z"/><path d="m3.5 15.5-2.5 1.5 11 5.5 11-5.5-2.5-1.5L12 19.7z"/>'],
+      ['영상/모션그래픽',    '<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-2 14.5v-9l7 4.5z"/>'],
+      ['그래픽 디자인',      '<path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.4A5.6 5.6 0 0 0 23 9.8C23 5.5 18 2 12 2zM6.5 13a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>'],
+      ['브랜딩/편집',        '<path d="M3 4h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm2 4v6h6V8zm8 1v2h6V9zm0 4v2h4v-2z"/>'],
+      ['UI/UX',             '<path d="M4 2l14 7-6 2 4 8-3 1.5-4-8L4 17z"/>'],
+      ['일러스트레이션',     '<path d="M12 1 7 9l3 3v4h4v-4l3-3zm0 6a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM8 18h8v4H8z"/>'],
+      ['디지털 아트',        '<path d="M3 5h12l-2 2H5v12h12v-8l2-2v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm17.3-3.3 2 2L12 14H10v-2z"/>'],
+      ['AI',                '<path d="M12 1c.6 5.5 4.5 9.4 10 10v2c-5.5.6-9.4 4.5-10 10h0c-.6-5.5-4.5-9.4-10-10v-2C7.5 10.4 11.4 6.5 12 1z"/>'],
+      ['캐릭터 디자인',      '<path d="M5 2a3 3 0 0 0-2 5.2A9 9 0 0 0 3 13a9 9 0 0 0 18 0c0-2-.4-4-1-5.8A3 3 0 1 0 15.8 3 9 9 0 0 0 8.2 3 3 3 0 0 0 5 2zm3.5 9a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm7 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM12 15c1.2 0 2 .6 2 1.2S13.1 18 12 18s-2-1.2-2-1.8.8-1.2 2-1.2z"/>'],
+      ['제품/패키지 디자인',  '<path d="M4 3h16a1 1 0 0 1 1 1v5H3V4a1 1 0 0 1 1-1zM4 10h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zm5 3v2h6v-2z"/>'],
+      ['포토그래피',         '<path d="M9 3h6l2 3h4a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4zm3 5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zm0 2.2a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6z"/>'],
+      ['타이포그래피',       '<path d="M3 3h18v5h-2.5V5.5h-5V19H16v2H8v-2h2.5V5.5h-5V8H3z"/>'],
+      ['공예',              '<path d="M6 3h12l4 6-10 12L2 9zm1.2 2L5 8.5h3.5L9.5 5zm4.3 0-1 3.5h3L11.5 5zm4 0 1 3.5H19L16.8 5zM5.5 10.5l5 6-2-6zm5 0L12 16l1.5-5.5zm5.1 0-2.1 6 5-6z"/>'],
+      ['파인아트',           '<path d="M20.7 2.3a1 1 0 0 0-1.4 0L9 12.6l2.4 2.4L21.7 4.7a1 1 0 0 0 0-1.4zM7.5 14a3.5 3.5 0 0 0-3.5 3.5c0 1.5-1 2.5-2 2.5 1 1.3 2.7 2 4.5 2a4.5 4.5 0 0 0 4.5-4.5c0-.3 0-.5-.1-.8z"/>'],
+    ];
+    // 마지막 특별 카테고리 (구분선 뒤)
+    const special = ['경기도 AI 콘텐츠',
+      '<rect x="2" y="7" width="20" height="3" rx="1" fill="#1fa37a"/><rect x="2" y="14" width="20" height="3" rx="1" fill="#2563eb"/>'];
+
+    const bar = document.getElementById('categoryBar');
+    bar.innerHTML =
+      categories.map(([n, d], i) =>
+        `<button class="category${i === 0 ? ' active' : ''}">${ico(d)}<span>${n}</span></button>`).join('') +
+      `<div class="divider"></div>` +
+      `<button class="category special">${ico(special[1])}<span>${special[0]}</span></button>`;
+
+    bar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.category');
+      if (!btn) return;
+      bar.querySelectorAll('.category').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+
+    const eye   = ico('<path d="M12 5C6 5 2 12 2 12s4 7 10 7 10-7 10-7-4-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>');
+    const heart = ico('<path d="M12 21 3.5 12.7A5.3 5.3 0 0 1 12 6a5.3 5.3 0 0 1 8.5 6.7z"/>');
+
+    const works = [
+      { img: 180, avatar: 1,  name: 'studio_min',   views: 191, likes: 9 },
+      { img: 225, avatar: 2,  name: '25min',        views: 196, likes: 2 },
+      { img: 250, avatar: 3,  name: '시나브',        views: 192, likes: 2 },
+      { img: 237, avatar: 4,  name: '모래',          views: 182, likes: 9 },
+      { img: 64,  avatar: 5,  name: '홍희정',        views: 159, likes: 6 },
+      { img: 15,  avatar: 6,  name: '인볼드',        views: 247, likes: 11 },
+      { img: 29,  avatar: 7,  name: 'hana.design',  views: 318, likes: 21 },
+    ];
+
+    document.getElementById('carousel').innerHTML = works.map(w => `
+      <article class="card">
+        <div class="thumb"><img src="https://picsum.photos/id/${w.img}/600/600" alt="${w.name} 작품"></div>
+        <div class="meta">
+          <div class="author">
+            <img src="https://i.pravatar.cc/44?img=${w.avatar}" alt="">
+            <b>${w.name}</b>
+          </div>
+          <div class="stats">
+            <span>${eye}${w.views}</span>
+            <span>${heart}${w.likes}</span>
+          </div>
+        </div>
+      </article>`).join('');
+  </script>
+</body>
+</html>

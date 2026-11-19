@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service Menu List</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#fff;font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;padding:24px 16px}
+  .menu{display:flex;gap:14px;list-style:none;overflow-x:auto;padding:12px 4px}
+  .menu a{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:#222;font-size:14px;width:52px}
+  .ic{position:relative;width:48px;height:48px;border-radius:16px;border:1px solid #e9ecef;background:#fff;
+      display:grid;place-items:center;box-shadow:0 1px 3px #0000000d;transition:transform .15s}
+  .menu a:hover .ic{transform:translateY(-3px)}
+  .ic svg{width:28px;height:28px}
+  .badge{position:absolute;top:-10px;right:-8px;background:#3b82f6;color:#fff;font-size:11px;font-weight:700;
+         padding:2px 6px;border-radius:999px}
+</style>
+</head>
+<body>
+<ul class="menu">
+  <li><a href="#"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 9l9-6 9 6v11H3z" fill="#1ec85b"/><path d="M3 9l9 6 9-6" fill="none" stroke="#fff" stroke-width="1.6"/></svg></span>메일</a></li>
+  <li><a href="#"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z" fill="#1ec85b"/><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17" fill="none" stroke="#1ec85b" stroke-width="2"/><path d="M10 8c0-3 3-4 4-5" stroke="#1ec85b" stroke-width="2" fill="none"/></svg></span>카페</a></li>
+  <li><a href="#"><span class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="3" height="18" rx="1" fill="#1ec85b"/><path d="M8 11a5 5 0 1 1 0 8" fill="none" stroke="#1ec85b" stroke-width="3"/></svg></span>블로그</a></li>
+  <li><a href="#"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="14" rx="3" fill="#6b4ff6"/><path d="M9 7a3 3 0 0 1 6 0" stroke="#6b4ff6" stroke-width="2" fill="none"/><path d="M12 11v6M9 14h6" stroke="#fff" stroke-width="2"/></svg></span>쇼핑</a></li>
+  <li><a href="#"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#4f7cf5"/><path d="M6 9h12M6 12h8M6 15h10" stroke="#fff" stroke-width="1.6"/></svg></span>뉴스</a></li>
+  <li><a href="#"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8" fill="none" stroke="#111" stroke-width="2.4"/><path d="M3 21l6-6 4 4 8-8v10H3z" fill="#1ec85b"/></svg></span>증권</a></li>
+  <li><a href="#"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10H3z" fill="#1ec85b"/><rect x="10" y="14" width="4" height="7" fill="#fff"/></svg></span>부동산</a></li>
+  <li><a href="#"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12z" fill="#2f6bf0"/><circle cx="12" cy="10" r="3" fill="#fff"/></svg></span>지도</a></li>
+  <li><a href="#"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" fill="#1ec85b"/><path d="M7 10l1.5 5 1.5-4 1.5 4L13 10M15 10h3" stroke="#fff" stroke-width="1.4" fill="none"/></svg></span>웹툰</a></li>
+  <li><a href="#"><span class="ic"><span class="badge">추천</span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="#111"/><path d="M8 8h8l-8 8h8" stroke="#2df59a" stroke-width="2.4" fill="none"/></svg></span>치지직</a></li>
+</ul>
+</body>
+</html>
