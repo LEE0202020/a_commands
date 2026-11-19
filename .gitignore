@@ -22,3 +22,11 @@ $RECYCLE.BIN/
 
 # Claude local settings
 .claude/settings.local.json
+
+# Environment variables
+.env
+.env.*
+!.env.example
+*.env
+.envrc
+.flaskenv
